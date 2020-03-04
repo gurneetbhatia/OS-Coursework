@@ -35,14 +35,14 @@ class CyclicCache(Memory):
     def lookup(self, address):
         if address not in self.cache:
             print("Memory Access", end=" ")
-            self.hit_count += 1 #memory hit since address not in cache
+            # memory hit since address not in cache
+            self.hit_count += 1
             self.cache[self.nextPos - 1] = address
             self.nextPos = self.nextPos + 1 if self.nextPos < 4 else 1
         else:
             print("Cache Access", end=" ")
         string = str(address ^ 3).encode()
         return hashlib.md5(string).hexdigest()[:8]
-            
 
     def __init__(self):
         super().__init__()
@@ -72,9 +72,7 @@ class LRUCache(Memory):
             print("Cache Access", end=" ")
         string = str(address ^ 3).encode()
         return hashlib.md5(string).hexdigest()[:8]
-            
 
     def __init__(self):
         super().__init__()
-        
         self.cache = ["", "", "", ""]

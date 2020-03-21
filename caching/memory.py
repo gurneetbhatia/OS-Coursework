@@ -33,21 +33,20 @@ class CyclicCache(Memory):
     # provide a suitable overridding of the lookup method.
 
     def lookup(self, address):
-        if address not in self.cache:
-            print("Memory Access", end=" ")
+        cacheAddresses = [x[0] for x in self.cache]
+        cacheData = [x[1] for x in self.cache]
+        if address not in cacheAddresses:
             # memory hit since address not in cache
-            self.hit_count += 1
-            self.cache[self.nextPos - 1] = address
+            self.cache[self.nextPos - 1] = (address, super().lookup(address))
             self.nextPos = self.nextPos + 1 if self.nextPos < 4 else 1
-        else:
-            print("Cache Access", end=" ")
-        string = str(address ^ 3).encode()
-        return hashlib.md5(string).hexdigest()[:8]
+            cacheAddresses = [x[0] for x in self.cache]
+            cacheData = [x[1] for x in self.cache]
+        return cacheData[cacheAddresses.index(address)]
 
     def __init__(self):
         super().__init__()
         self.nextPos = 1
-        self.cache = ["", "", "", ""]
+        self.cache = [(None, None), (None, None), (None, None), (None, None)]
 
 
 class LRUCache(Memory):
@@ -60,19 +59,20 @@ class LRUCache(Memory):
     # long as you provide a suitable overridding of the lookup method.
 
     def lookup(self, address):
-        if address not in self.cache:
-            self.hit_count += 1
+        cacheAddresses = [x[0] for x in self.cache]
+        cacheData = [x[1] for x in self.cache]
+        if address not in cacheAddresses:
+            #self.hit_count += 1
             self.cache = self.cache[1:]
-            self.cache.append(address)
-            print("Memory Access", end=" ")
+            self.cache.append((address, super().lookup(address)))
+            cacheAddresses = [x[0] for x in self.cache]
+            cacheData = [x[1] for x in self.cache]
         else:
-            index = self.cache.index(address)
+            index = cacheAddresses.index(address)
             self.cache = self.cache[0:index] + self.cache[index+1:]
-            self.cache.append(address)
-            print("Cache Access", end=" ")
-        string = str(address ^ 3).encode()
-        return hashlib.md5(string).hexdigest()[:8]
+            self.cache.append((address, cacheData[index]))
+        return cacheData[cacheAddresses.index(address)]
 
     def __init__(self):
         super().__init__()
-        self.cache = ["", "", "", ""]
+        self.cache = [(None, None), (None, None), (None, None), (None, None)]
